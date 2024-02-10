@@ -18,3 +18,6 @@ if go_button: #code in this if block will be run when the button is clicked
         response_content = glib.get_text_response(noun=noun, adjective=adjective, verb=verb) #call the model through the supporting library
         
         st.write(response_content) #display the response content
+
+# To start:
+# streamlit run templates_app.py --server.port 8080
