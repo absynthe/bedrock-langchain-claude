@@ -2,39 +2,48 @@ import os
 import json
 import boto3
 
-#
-session = boto3.Session(
-    profile_name=os.environ.get("BWB_PROFILE_NAME")
-) #sets the profile name to use for AWS credentials
+#sets the profile name to use for AWS credentials
+os.environ["AWS_PROFILE"] = "bedrock-ana" #replace with your profile name
 
+session = boto3.Session() 
+
+#creates a Bedrock client
 bedrock = session.client(
-    service_name='bedrock-runtime', #creates a Bedrock client
-    region_name=os.environ.get("BWB_REGION_NAME"),
-    endpoint_url=os.environ.get("BWB_ENDPOINT_URL")
+    service_name='bedrock-runtime', 
 ) 
 
-#
-bedrock_model_id = "ai21.j2-ultra-v1" #set the foundation model
+#set the foundation model
+bedrock_model_id = "anthropic.claude-v2" 
 
-prompt = "What is the largest city in New Hampshire?" #the prompt to send to the model
+#the prompt to send to the model
+prompt = """
+Human: What is the largest city in New Hampshire?
+Assistant:
+"""
 
+#build the request payload for Claude
 body = json.dumps({
-    "prompt": prompt, #AI21
-    "maxTokens": 1024, 
-    "temperature": 0, 
-    "topP": 0.5, 
-    "stopSequences": [], 
-    "countPenalty": {"scale": 0 }, 
-    "presencePenalty": {"scale": 0 }, 
-    "frequencyPenalty": {"scale": 0 }
-}) #build the request payload
+    "prompt":prompt,
+    "max_tokens_to_sample":2000,
+    "temperature":0,
+    "top_k":250,
+    "top_p":0.9,
+    "stop_sequences":["\n\nHuman:"]
+    }) 
 
-#
-response = bedrock.invoke_model(body=body, modelId=bedrock_model_id, accept='application/json', contentType='application/json') #send the payload to Bedrock
+#send the payload to Bedrock
+response = bedrock.invoke_model(
+    body=body,
+    modelId=bedrock_model_id,
+    accept='application/json',contentType='application/json'
+    )
 
-#
-response_body = json.loads(response.get('body').read()) # read the response
+#read the response
+response_body = json.loads(
+    response.get('body').read()
+    )
 
-response_text = response_body.get("completions")[0].get("data").get("text") #extract the text from the JSON response
+#extract the text from the JSON response
+response_text = response_body.get("completion") 
 
 print(response_text)
