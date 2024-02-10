@@ -1,6 +1,6 @@
 import streaming_lib as glib  # reference to local lib script
 import streamlit as st
-from langchain.callbacks import StreamlitCallbackHandler
+from langchain.callbacks.streamlit import StreamlitCallbackHandler
 
 st.set_page_config(page_title="Response Streaming")  # HTML title
 st.title("Response Streaming")  # page title
@@ -13,3 +13,6 @@ if go_button:  # code in this if block will be run when the button is clicked
     #use an empty container for streaming output
     st_callback = StreamlitCallbackHandler(st.container())
     streaming_response = glib.get_streaming_response(prompt=input_text, streaming_callback=st_callback)
+
+# To start:
+# streamlit run streaming_app.py --server.port 8080

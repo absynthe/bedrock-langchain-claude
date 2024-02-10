@@ -3,29 +3,25 @@ from langchain.prompts import PromptTemplate
 from langchain.llms.bedrock import Bedrock
 from langchain.chains.summarize import load_summarize_chain
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.document_loaders import PyPDFLoader
+from langchain.document_loaders.pdf import PyPDFLoader
 
-
+#sets the profile name to use for AWS credentials
+os.environ["AWS_PROFILE"] = "bedrock-ana" #replace with your profile name
 
 def get_llm():
-    
-    model_kwargs = { #AI21
-        "maxTokens": 8000, 
-        "temperature": 0, 
-        "topP": 0.5, 
-        "stopSequences": [], 
-        "countPenalty": {"scale": 0 }, 
-        "presencePenalty": {"scale": 0 }, 
-        "frequencyPenalty": {"scale": 0 } 
-    }
-    
+
+    model_kwargs = {
+            "max_tokens_to_sample": 2000,
+            "temperature": 0.5, 
+            "top_k": 250, 
+            "top_p": 0.999, 
+            "stop_sequences": ["\n\nHuman:"] 
+           }
+
     llm = Bedrock(
-        credentials_profile_name=os.environ.get("BWB_PROFILE_NAME"), #sets the profile name to use for AWS credentials (if not the default)
-        region_name=os.environ.get("BWB_REGION_NAME"), #sets the region name (if not the default)
-        endpoint_url=os.environ.get("BWB_ENDPOINT_URL"), #sets the endpoint URL (if necessary)
-        model_id="ai21.j2-ultra-v1", #set the foundation model
+        model_id="anthropic.claude-v2", #set the foundation model
         model_kwargs=model_kwargs) #configure the properties for Claude
-    
+ 
     return llm
 
 
@@ -56,8 +52,6 @@ def get_docs():
     docs = text_splitter.split_documents(documents=documents)
     
     return docs
-
-
 
 def get_summary(return_intermediate_steps=False):
     

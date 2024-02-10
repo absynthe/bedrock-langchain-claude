@@ -30,3 +30,6 @@ if go_button: #code in this if block will be run when the button is clicked
         
         with st.expander("View question embedding"):
             st.json(raw_embedding)
+            
+# To start:
+# streamlit run embeddings_search_app.py --server.port 8080

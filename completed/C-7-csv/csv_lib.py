@@ -3,18 +3,23 @@ import pandas as pd
 from io import StringIO
 from langchain.llms.bedrock import Bedrock
 
-#
+#sets the profile name to use for AWS credentials
+os.environ["AWS_PROFILE"] = "bedrock-ana" #replace with your profile name
 
 def get_llm():
 
-    llm = Bedrock( #create a Bedrock llm client
-        credentials_profile_name=os.environ.get("BWB_PROFILE_NAME"), #sets the profile name to use for AWS credentials (if not the default)
-        region_name=os.environ.get("BWB_REGION_NAME"), #sets the region name (if not the default)
-        endpoint_url=os.environ.get("BWB_ENDPOINT_URL"), #sets the endpoint URL (if necessary)
-        model_id="ai21.j2-ultra-v1", #use the AI21 Jurassic-2 Ultra model
-        model_kwargs = {"maxTokens": 1024, "temperature": 0.0 } #for data extraction, minimum temperature is best
-    )
+    model_kwargs = {
+            "max_tokens_to_sample": 2000,
+            "temperature": 0.0, 
+            "top_k": 250, 
+            "top_p": 0.999, 
+            "stop_sequences": ["\n\nHuman:"] 
+           }
 
+    llm = Bedrock(
+        model_id="anthropic.claude-v2", #set the foundation model
+        model_kwargs=model_kwargs) #configure the properties for Claude
+ 
     return llm
 
 #

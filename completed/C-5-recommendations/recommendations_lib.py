@@ -1,31 +1,28 @@
 import os
 from langchain.llms.bedrock import Bedrock
-from langchain.embeddings import BedrockEmbeddings
+from langchain.embeddings.bedrock import BedrockEmbeddings
 from langchain.indexes import VectorstoreIndexCreator
-from langchain.vectorstores import FAISS
+from langchain.vectorstores.faiss import FAISS
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.document_loaders import JSONLoader
+from langchain.document_loaders.json_loader import JSONLoader
 
+#sets the profile name to use for AWS credentials
+os.environ["AWS_PROFILE"] = "bedrock-ana" #replace with your profile name
 
 def get_llm():
-    
-    model_kwargs = { #AI21
-        "maxTokens": 1024, 
-        "temperature": 0, 
-        "topP": 0.5, 
-        "stopSequences": [], 
-        "countPenalty": {"scale": 0 }, 
-        "presencePenalty": {"scale": 0 }, 
-        "frequencyPenalty": {"scale": 0 } 
-    }
-    
+
+    model_kwargs = {
+            "max_tokens_to_sample": 2000,
+            "temperature": 0.5, 
+            "top_k": 250, 
+            "top_p": 0.999, 
+            "stop_sequences": ["\n\nHuman:"] 
+           }
+
     llm = Bedrock(
-        credentials_profile_name=os.environ.get("BWB_PROFILE_NAME"), #sets the profile name to use for AWS credentials (if not the default)
-        region_name=os.environ.get("BWB_REGION_NAME"), #sets the region name (if not the default)
-        endpoint_url=os.environ.get("BWB_ENDPOINT_URL"), #sets the endpoint URL (if necessary)
-        model_id="ai21.j2-ultra-v1", #set the foundation model
+        model_id="anthropic.claude-v2", #set the foundation model
         model_kwargs=model_kwargs) #configure the properties for Claude
-    
+ 
     return llm
 
 
@@ -40,11 +37,7 @@ def item_metadata_func(record: dict, metadata: dict) -> dict:
     
 def get_index(): #creates and returns an in-memory vector store to be used in the application
     
-    embeddings = BedrockEmbeddings(
-        credentials_profile_name=os.environ.get("BWB_PROFILE_NAME"), #sets the profile name to use for AWS credentials (if not the default)
-        region_name=os.environ.get("BWB_REGION_NAME"), #sets the region name (if not the default)
-        endpoint_url=os.environ.get("BWB_ENDPOINT_URL"), #sets the endpoint URL (if necessary)
-    ) #create a Titan Embeddings client
+    embeddings = BedrockEmbeddings() #create a Titan Embeddings client
     
     loader = JSONLoader(
         file_path="services.json",

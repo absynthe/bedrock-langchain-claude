@@ -58,3 +58,5 @@ if 'has_document' in st.session_state: #see if document has been uploaded
         else:
             st.write(response_content)
 
+# To start:
+# streamlit run summarization_app.py --server.port 8080

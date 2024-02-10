@@ -28,3 +28,6 @@ if go_button: #code in this if block will be run when the button is clicked
             st.write(result['summary'])
             with st.expander("Original"):
                 st.write(result['original'])
+                
+# To start:
+# streamlit run recommendations_app.py --server.port 8080

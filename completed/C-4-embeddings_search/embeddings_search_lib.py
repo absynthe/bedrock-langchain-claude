@@ -1,19 +1,16 @@
 import os
-from langchain.embeddings import BedrockEmbeddings
+from langchain.embeddings.bedrock import BedrockEmbeddings
 from langchain.indexes import VectorstoreIndexCreator
-from langchain.vectorstores import FAISS
+from langchain.vectorstores.faiss import FAISS
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.document_loaders.csv_loader import CSVLoader
 
+#sets the profile name to use for AWS credentials
+os.environ["AWS_PROFILE"] = "bedrock-ana" #replace with your profile name
+
+embeddings = BedrockEmbeddings() #create a Titan Embeddings client
 
 def get_index(): #creates and returns an in-memory vector store to be used in the application
-    
-    embeddings = BedrockEmbeddings(
-        credentials_profile_name=os.environ.get("BWB_PROFILE_NAME"), #sets the profile name to use for AWS credentials (if not the default)
-        region_name=os.environ.get("BWB_REGION_NAME"), #sets the region name (if not the default)
-        endpoint_url=os.environ.get("BWB_ENDPOINT_URL"), #sets the endpoint URL (if necessary)
-    ) #create a Titan Embeddings client
-    
     loader = CSVLoader(file_path="sagemaker_answers.csv")
 
     index_creator = VectorstoreIndexCreator(
@@ -36,10 +33,4 @@ def get_similarity_search_results(index, question):
 
 
 def get_embedding(text):
-    embeddings = BedrockEmbeddings(
-        credentials_profile_name=os.environ.get("BWB_PROFILE_NAME"), #sets the profile name to use for AWS credentials (if not the default)
-        region_name=os.environ.get("BWB_REGION_NAME"), #sets the region name (if not the default)
-        endpoint_url=os.environ.get("BWB_ENDPOINT_URL"), #sets the endpoint URL (if necessary)
-    ) #create a Titan Embeddings client
-    
     return embeddings.embed_query(text)
