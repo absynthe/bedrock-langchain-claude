@@ -2,22 +2,23 @@ import sys
 import os
 from langchain.llms.bedrock import Bedrock
 
-#
+#sets the profile name to use for AWS credentials
+os.environ["AWS_PROFILE"] = "bedrock-ana" #replace with your profile name
 
 def get_inference_parameters(model): #return a default set of parameters based on the model's provider
     bedrock_model_provider = model.split('.')[0] #grab the model provider from the first part of the model id
-    
+
     if (bedrock_model_provider == 'anthropic'): #Anthropic model
-        return { #anthropic
+        return {
             "max_tokens_to_sample": 512,
-            "temperature": 0, 
+            "temperature": 1, 
             "top_k": 250, 
-            "top_p": 1, 
+            "top_p": 0.999, 
             "stop_sequences": ["\n\nHuman:"] 
            }
     
     elif (bedrock_model_provider == 'ai21'): #AI21
-        return { #AI21
+        return { 
             "maxTokens": 512, 
             "temperature": 0, 
             "topP": 0.5, 
@@ -45,13 +46,13 @@ def get_inference_parameters(model): #return a default set of parameters based o
         }
 
     else: #Amazon
-        #For the LangChain Bedrock implementation, these parameters will be added to the 
+        #For the LangChain Bedrock implementation, these parameters will be added to the
         #textGenerationConfig item that LangChain creates for us
         return { 
             "maxTokenCount": 512, 
             "stopSequences": [], 
-            "temperature": 0, 
-            "topP": 0.9 
+            "temperature": 1, 
+            "topP": 0.999 
         }
     
 
@@ -61,18 +62,18 @@ def get_text_response(model, input_content): #text-to-text client function
     
     model_kwargs = get_inference_parameters(model) #get the default parameters based on the selected model
     
-    llm = Bedrock( #create a Bedrock llm client
-        credentials_profile_name=os.environ.get("BWB_PROFILE_NAME"), #sets the profile name to use for AWS credentials (if not the default)
-        region_name=os.environ.get("BWB_REGION_NAME"), #sets the region name (if not the default)
-        endpoint_url=os.environ.get("BWB_ENDPOINT_URL"), #sets the endpoint URL (if necessary)
+    #create a Bedrock llm client
+    llm = Bedrock(
         model_id=model, #use the requested model
         model_kwargs = model_kwargs
     )
     
-    return llm.predict(input_content) #return a response to the prompt
-
-
+    return llm.invoke(input_content) #return a response to the prompt
 
 response = get_text_response(sys.argv[1], sys.argv[2])
+
+#Example: 
+# Argument 1: anthropic.claude-v2:1
+# Argument 2: "Write a Haiku poem about Amazon Web Services." -> Keep the quotes, otherwise the model will only see the first word. 
 
 print(response)
