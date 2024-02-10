@@ -37,3 +37,5 @@ if input_text: #run the code in this if block after the user submits a chat mess
     
     st.session_state.chat_history.append({"role":"assistant", "text":chat_response}) #append the bot's latest message to the chat history
     
+# To start:
+# streamlit run chatbot_app.py --server.port 8080
