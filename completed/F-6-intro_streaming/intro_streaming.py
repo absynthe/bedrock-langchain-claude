@@ -2,14 +2,13 @@ import os
 import json
 import boto3
 
-session = boto3.Session(
-    profile_name=os.environ.get("BWB_PROFILE_NAME")
-) #sets the profile name to use for AWS credentials
+#sets the profile name to use for AWS credentials
+os.environ["AWS_PROFILE"] = "bedrock-ana" #replace with your profile name
+
+session = boto3.Session() #sets the profile name to use for AWS credentials
 
 bedrock = session.client(
     service_name='bedrock-runtime', #creates a Bedrock client
-    region_name=os.environ.get("BWB_REGION_NAME"),
-    endpoint_url=os.environ.get("BWB_ENDPOINT_URL")
 )
 
 def chunk_handler(chunk):
