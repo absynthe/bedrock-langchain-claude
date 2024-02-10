@@ -1,16 +1,18 @@
-from langchain.embeddings import BedrockEmbeddings
+import os
+from langchain.embeddings.bedrock import BedrockEmbeddings
 from numpy import dot
 from numpy.linalg import norm
 
-#create an Amazon Titan Embeddings client
-belc = BedrockEmbeddings()
+#sets the profile name to use for AWS credentials
+os.environ["AWS_PROFILE"] = "bedrock-ana" #replace with your profile name
 
-#
+#create an Amazon Titan Embeddings client
+embedder = BedrockEmbeddings()
 
 class EmbedItem:
     def __init__(self, text):
         self.text = text
-        self.embedding = belc.embed_query(text)
+        self.embedding = embedder.embed_query(text)
 
 class ComparisonResult:
     def __init__(self, text, similarity):
@@ -20,9 +22,6 @@ class ComparisonResult:
 def calculate_similarity(a, b): #See Cosine Similarity: https://en.wikipedia.org/wiki/Cosine_similarity
     return dot(a, b) / (norm(a) * norm(b))
 
-#
-
-
 #Build the list of embeddings to compare
 items = []
 
@@ -31,8 +30,6 @@ with open("items.txt", "r") as f:
 
 for text in text_items:
     items.append(EmbedItem(text))
-
-#
 
 for e1 in items:
     print(f"Closest matches for '{e1.text}'")
